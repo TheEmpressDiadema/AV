@@ -1,4 +1,7 @@
+from typing import Iterable
 from django.db import models
+from django.urls import reverse
+from django.utils.text import slugify
 from django.core.validators import MinValueValidator, MaxValueValidator
 
 def gen_directory_path(instance, filename: str) -> str:
@@ -10,6 +13,7 @@ def car_directory_path(instance, filename: str) -> str:
 # Create your models here.
 class Brand(models.Model):
     name = models.CharField(max_length=30, blank=False, null=False, verbose_name='Наименование марки')
+    slug = models.SlugField(max_length=20, db_index=True, null=False, blank=False, verbose_name='URL')
     created = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')
     updated = models.DateTimeField(auto_now=True, verbose_name='Дата обновления')
 
@@ -21,8 +25,15 @@ class Brand(models.Model):
             models.Index(fields=['name'])
         ]
 
+    def get_absolute_url(self):
+        return reverse("brand", kwargs={"brand_slug": self.slug})
+    
+    def save(self, **kwargs) -> None:
+        self.slug = slugify(self.name)
+        return super().save(**kwargs)
+    
     def __str__(self):
-        return f"Марка id:{self.pk}, имя:{self.name}, создано:{self.created}, изменено:{self.updated}"
+        return f"Марка id:{self.pk}, имя:{self.name}, создано:{self.created}, изменено:{self.updated}, url={self.slug}"
 
 class CarModel(models.Model):
     name = models.CharField(max_length=30, blank=False, null=False, verbose_name='Наименование Модели')
