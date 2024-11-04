@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% block content %}
+    <a href="{% url add_brand_link %}">Добавить марку</a>
     <div class="list">
         <ul>
             {% for brand in brands %}

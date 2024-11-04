@@ -1,5 +1,5 @@
 #Утилиты для общего использования, такие как меню
 menu = [
     { 'url_name' : "home", 'title' : "Главная" },
-    { 'url_name' : "add_brand", 'title' : "Добавить бренд"},
+    { 'url_name' : "brand_list", 'title' : "Список марок"},
 ]

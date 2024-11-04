@@ -9,6 +9,8 @@ ModelList,
 GenerationList
 '''
 urlpatterns = [
-    path('', views.BrandList.as_view(), name='home'),
-    path('add-brand/', views.AddBrand.as_view(), name='add_brand')
+    path('', views.IndexView.as_view(), name='home'),
+    path('brand-list/', views.BrandList.as_view(), name='brand_list'),
+    path('add-brand/', views.AddBrand.as_view(), name='add_brand'),
+    path('edit/<slug:brand_slug>', views.UpdateBrand.as_view(), name='edit_brand'),
 ]
