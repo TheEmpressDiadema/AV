@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% block content %}
+    <a href='{{ add_model_link }}'>Добавить модель</a>
+    <div class='list'>
+        <ul>
+            {% for model in car_models %}
+                <li><a href='#'>{{ model.name }}</a></li>
+            {% endfor %}
+        </ul>
+    </div>
+{% endblock%}

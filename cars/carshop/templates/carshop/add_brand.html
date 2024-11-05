@@ -1,7 +1,11 @@
 {% extends 'base.html' %}
 {% block content %}
     <form action="" method='post'>
-        <legend>Добавить бренд</legend>
+        {% if view_name == 'add' %}
+            <legend>Добавить марку</legend>
+        {% elif view_name == 'edit' %}
+            <legend>Изменить параметры марки</legend>
+        {% endif %}
         {% csrf_token %}
         {{ form.as_p }}
         <button type="submit">Добавить!</button>
