@@ -1,14 +1,18 @@
 from django.db.models.query import QuerySet
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.views.generic import TemplateView, ListView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
-from .models import Car, Brand, CarModel
+from .models import Brand, CarModel, Gen
 from django.urls import reverse_lazy
 # Create your views here.
 class IndexView(TemplateView):
+    '''
+    '''
     template_name = 'carshop/index.html'
 
 class BrandList(ListView):
+    '''
+    '''
     model = Brand
     template_name = 'carshop/brand_list.html'
     context_object_name = 'brands'
@@ -17,6 +21,8 @@ class BrandList(ListView):
     }
 
 class AddBrand(CreateView):
+    '''
+    '''
     model = Brand
     template_name = 'carshop/add_brand.html'
     fields = ['name']
@@ -26,6 +32,8 @@ class AddBrand(CreateView):
     }
     
 class UpdateBrand(UpdateView):
+    '''
+    '''
     model = Brand
     template_name = 'carshop/add_brand.html'
     fields = ['name']
@@ -36,15 +44,107 @@ class UpdateBrand(UpdateView):
     }
 
 class ModelList(ListView):
+    '''
+    '''
     model = CarModel
     template_name = 'carshop/model_list.html'
     context_object_name = 'car_models'
-    extra_context = {
-        'add_model_link' : "add_model"
-    }
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['add_model_link'] = reverse_lazy('add_model', kwargs={'brand_slug' : self.kwargs['brand_slug']})
+        context['brand'] = Brand.objects.get(slug=self.kwargs['brand_slug'])
+        return context
+
+    def get_queryset(self):
+        return CarModel.objects.filter(brand__slug=self.kwargs['brand_slug'])
 
 class AddModel(CreateView):
+    '''
+    '''
     model = CarModel
     template_name = 'carshop/add_model.html'
-    fields = ['name', 'brand']
-    success_url = reverse_lazy('model_list')
+    fields = ['name']
+
+    def form_valid(self, form):
+        brand = get_object_or_404(Brand, slug=self.kwargs['brand_slug'])
+        form.instance.brand = brand
+        return super().form_valid(form)
+    
+    def get_success_url(self) -> str:
+        return reverse_lazy('model_list', kwargs={'brand_slug' : self.kwargs['brand_slug']})
+
+
+class UpdateModel(UpdateView):
+    '''
+    '''
+    model = CarModel
+    template_name = 'carshop/add_model.html'
+    fields = ['name']
+
+    def get_object(self, queryset=None):
+        return get_object_or_404(CarModel, brand__slug=self.kwargs['brand_slug'], slug=self.kwargs['model_slug'])
+
+    def form_valid(self, form):
+        brand = get_object_or_404(Brand, slug=self.kwargs['brand_slug'])
+        form.instance.brand = brand
+        return super().form_valid(form)
+
+    def get_success_url(self) -> str:
+        return reverse_lazy('model_list', kwargs={'brand_slug' : self.kwargs['brand_slug']})
+
+
+class GenList(ListView):
+    '''
+    
+    '''
+    model = Gen
+    template_name = 'carshop/gen_list.html'
+    context_object_name = 'generations'
+    allow_empty = True
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['add_gen_link'] = reverse_lazy('add_gen', kwargs={'brand_slug' : self.kwargs['brand_slug'], 'model_slug' : self.kwargs['model_slug']})
+        context['brand'] = Brand.objects.get(slug=self.kwargs['brand_slug'])
+        context['model'] = CarModel.objects.get(slug=self.kwargs['model_slug'])
+        return context
+    
+    def get_queryset(self):
+        return Gen.objects.filter(model__slug=self.kwargs['model_slug'])
+    
+class AddGen(CreateView):
+    '''
+    
+    '''
+    model = Gen
+    template_name = 'carshop/add_gen.html'
+    fields = ['name', 'image', 'release_start', 'release_end']
+
+
+    def form_valid(self, form):
+        model = get_object_or_404(CarModel, slug=self.kwargs['model_slug'])
+        form.instance.model = model
+        return super().form_valid(form)
+    
+    def get_success_url(self) -> str:
+        return reverse_lazy('gen_list', kwargs={'brand_slug' : self.kwargs['brand_slug'], 'model_slug' : self.kwargs['model_slug']})
+    
+class UpdateGen(UpdateView):
+    '''
+    
+    '''
+    model = Gen
+    template_name = 'carshop/add_gen.html'
+    fields = ['name', 'image', 'release_start', 'release_end']
+
+    def get_object(self, queryset=None):
+        return get_object_or_404(Gen, slug=self.kwargs['gen_slug'])
+
+    def form_valid(self, form):
+        model = get_object_or_404(CarModel, slug=self.kwargs['model_slug'])
+        form.instance.model = model
+        return super().form_valid(form)
+    
+    def get_success_url(self) -> str:
+        return reverse_lazy('gen_list', kwargs={'brand_slug' : self.kwargs['brand_slug'], 'model_slug' : self.kwargs['model_slug']})

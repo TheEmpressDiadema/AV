@@ -4,7 +4,7 @@
     <div class="list">
         <ul>
             {% for brand in brands %}
-                <li><a href='#'>{{ brand.name }}</a></li>
+                <li><a href='{{ brand.get_absolute_url }}'>{{ brand.name }}</a>|<a href='{{ brand.get_edit_url }}'>Изменить</a></li>
             {% endfor %}
         </ul>
     </div>
