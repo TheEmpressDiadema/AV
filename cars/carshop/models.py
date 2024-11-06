@@ -26,7 +26,10 @@ class Brand(models.Model):
         ]
 
     def get_absolute_url(self):
-        return reverse("brand", kwargs={"brand_slug": self.slug})
+        return reverse("model_list", kwargs={"brand_slug": self.slug})
+    
+    def get_edit_url(self):
+        return reverse("edit_brand", kwargs={"brand_slug" : self.slug})
     
     def save(self, **kwargs) -> None:
         self.slug = slugify(self.name)
@@ -38,6 +41,7 @@ class Brand(models.Model):
 class CarModel(models.Model):
     name = models.CharField(max_length=30, blank=False, null=False, verbose_name='Наименование Модели')
     brand = models.ForeignKey(to='Brand', on_delete=models.CASCADE, blank=False, null=False, verbose_name='Марка', related_name="car_models")
+    slug = models.SlugField(max_length=30, db_index=True, unique=True, blank=False)
     created = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')
     updated = models.DateTimeField(auto_now=True, verbose_name='Дата обновления')
 
@@ -49,12 +53,23 @@ class CarModel(models.Model):
             models.Index(fields=['name'])
         ]
 
+    def get_absolute_url(self):
+        return reverse("gen_list", kwargs={"model_slug" : self.slug, "brand_slug" : self.brand.slug})
+    
+    def get_edit_url(self):
+        return reverse("edit_model", kwargs={"model_slug" : self.slug, "brand_slug" : self.brand.slug})
+
+    def save(self, **kwargs):
+        self.slug = slugify("-".join(self.name.split()))
+        return super().save(**kwargs)
+
     def __str__(self):
-        return f"Модель id:{self.pk}, имя:{self.name}, марка:{self.brand.name}, создано:{self.created}, изменено:{self.updated}"
+        return f"Модель id:{self.pk}, имя:{self.name}, марка:{self.brand.name}, создано:{self.created}, изменено:{self.updated}, URL:{self.slug}"
 
 class Gen(models.Model):
     name = models.CharField(max_length=40, blank=False, null=False, verbose_name='Наименование Поколения')
     model = models.ForeignKey(to='CarModel', on_delete=models.CASCADE, blank=False, null=False, verbose_name='Модель', related_name='gens')
+    slug = models.SlugField(max_length=60, db_index=True, blank=False, null=False, unique=True)
     image = models.ImageField(upload_to=gen_directory_path, blank=False, null=False, verbose_name='Фото поколения')
     release_start = models.SmallIntegerField(
         blank=False,
@@ -84,6 +99,13 @@ class Gen(models.Model):
         indexes = [
             models.Index(fields=['release_start'])
         ]
+
+    def get_edit_url(self):
+        return reverse("edit_gen", kwargs={"model_slug" : self.model.slug, "brand_slug" : self.model.brand.slug, "gen_slug" : self.slug})
+
+    def save(self, **kwargs):
+        self.slug = slugify(f"{self.name.split()}-{self.release_start}-{self.release_end}")
+        return super().save(**kwargs)
 
     def __str__(self):
         return f"Поколение id:{self.pk}, имя:{self.name}, марка:{self.model.name}, изображение: {self.image}, создано:{self.created}, изменено:{self.updated}"
