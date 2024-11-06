@@ -10,7 +10,7 @@
     
     "name": "cars",
     
-    "type": "python",
+    "type": "debugpy",
     
     "request": "launch",
     
