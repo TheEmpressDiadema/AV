@@ -1,0 +1,7 @@
+<div class="header">
+    <ul id="menu" class="menu">
+        {% for element in menu %}
+            <li><a href="{% url element.url_name %}">{{ element.title }}</a></li>
+        {% endfor %}
+    </ul>
+</div>

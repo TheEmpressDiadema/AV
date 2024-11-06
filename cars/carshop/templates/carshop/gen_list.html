@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block content %}
+    <a href="{{ add_gen_link }}">Добавить поколение {{ brand.name }} {{ model.name }}</a>
+    <div class="list">
+        <ul>
+            {% for gen in generations %}
+                <div class='gen_block'>
+                    <li>
+                        <image src="{{ gen.image.url }}">
+                        <a href="#">{{ gen.name }}</a>|<a href="{{ gen.get_edit_url }}">Изменить</a>
+                    </li>
+                </div>
+            {% endfor %}
+        </ul>
+    </div>
+{% endblock %}

@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% block content %}
+    <a href='{{ add_model_link }}'>Добавить модель марки {{ brand.name }}</a>
+    <div class='list'>
+        <ul>
+            {% for model in car_models %}
+                <li><a href='{{ model.get_absolute_url }}'>{{ model.name }}</a>|<a href='{{ model.get_edit_url }}'>Изменить</a></li>
+            {% endfor %}
+        </ul>
+    </div>
+{% endblock%}
