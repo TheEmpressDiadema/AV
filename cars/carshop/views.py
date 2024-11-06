@@ -2,7 +2,7 @@ from django.db.models.query import QuerySet
 from django.shortcuts import render, get_object_or_404
 from django.views.generic import TemplateView, ListView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
-from .models import Brand, CarModel, Gen
+from .models import Brand, CarModel, Gen, Engine, Car
 from django.urls import reverse_lazy
 # Create your views here.
 class IndexView(TemplateView):
@@ -148,3 +148,9 @@ class UpdateGen(UpdateView):
     
     def get_success_url(self) -> str:
         return reverse_lazy('gen_list', kwargs={'brand_slug' : self.kwargs['brand_slug'], 'model_slug' : self.kwargs['model_slug']})
+    
+class CreateEngine(CreateView):
+    model = Engine
+    template_name = 'carshop/add_engine.html'
+    fields = ['name', 'fuel_type', 'volume', 'power', 'milage']
+    success_url = reverse_lazy('home')
