@@ -1,10 +1,14 @@
 from django import forms
-from django.forms import inlineformset_factory
+from django.forms import inlineformset_factory, BaseInlineFormSet
+from django.core.exceptions import ValidationError
 from .models import Car, CarImage
 
-class CarImageForm(forms.ModelForm):
-    class Meta:
-        model = CarImage
-        fields = ['image']
+class CarForm(forms.ModelForm):
+    images = forms.ImageField(
+        required=False,
+        label="Фотографии"
+    )
 
-car_image_formset = inlineformset_factory(Car, CarImage, form=CarImageForm, extra=1, can_delete=True)
+    class Meta:
+        model = Car
+        fields = ['engine', 'vin', 'color', 'price', 'description']

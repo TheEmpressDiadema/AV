@@ -167,6 +167,7 @@ class Car(models.Model):
     gen = models.ForeignKey(to='Gen', on_delete=models.CASCADE, blank=False, null=False, related_name='cars', verbose_name='Поколение')
     engine = models.ForeignKey(to='Engine', on_delete=models.CASCADE, blank=False, null=False, related_name='cars', verbose_name='Двигатель')
     vin = models.CharField(max_length=50, blank=True, null=True, unique=True, verbose_name='VIN')
+    price = models.FloatField(blank=False, null=False, verbose_name="Цена")
     color = models.CharField(max_length=2, choices=Colors.choices, blank=False, null=False, default=Colors.OTHER, verbose_name='Цвет')
     description = models.TextField(blank=True, null=True, verbose_name='Описание')
     slug = models.SlugField(max_length=140, db_index=True, blank=False, null=False, unique=True, verbose_name='URL')
@@ -184,11 +185,13 @@ class Car(models.Model):
         ]
     
     def get_edit_url(self):
-        return reverse("edit_car", kwargs={"car_slug" : self.slug, "gen_slug" : self.gen.slug, "model_slug" : self.gen.model.slug, "brand_slug" : self.brand.slug})
+        return reverse("edit_car", kwargs={"car_slug" : self.slug, "gen_slug" : self.gen.slug, "model_slug" : self.gen.model.slug, "brand_slug" : self.gen.model.brand.slug})
 
     def save(self, **kwargs):
+        last_car = Car.objects.last().pk
         self.name = self.gen.model.brand.name + " " + self.gen.model.name + " " + self.gen.name
-        self.slug = slugify("-".join(self.name.split()))
+        if self.slug is None:
+            self.slug = slugify("-".join(self.name.split())) + f"-{last_car+1}"
         return super().save(**kwargs)
 
     def __str__(self):
