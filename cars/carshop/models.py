@@ -188,14 +188,17 @@ class Car(models.Model):
         return reverse("edit_car", kwargs={"car_slug" : self.slug, "gen_slug" : self.gen.slug, "model_slug" : self.gen.model.slug, "brand_slug" : self.gen.model.brand.slug})
 
     def save(self, **kwargs):
-        last_car = Car.objects.last().pk
+        last_car = Car.objects.last()
+        if last_car is None:
+            last_car = 0
+        else:
+            last_car = last_car.pk
         self.name = self.gen.model.brand.name + " " + self.gen.model.name + " " + self.gen.name
-        if self.slug is None:
-            self.slug = slugify("-".join(self.name.split())) + f"-{last_car+1}"
+        self.slug = slugify("-".join(self.name.split())) + f"-{last_car+1}"
         return super().save(**kwargs)
 
     def __str__(self):
-        return f"Машина: {self.vin} {self.gen.model.brand.name} {self.gen.model.name} {self.gen.name}, {self.engine.name}, {self.engine.volume}, {self.engine.fuel_type}, {self.color} создано:{self.created} изменено: {self.updated}"
+        return f"Машина: {self.vin} {self.slug} {self.gen.model.brand.name} {self.gen.model.name} {self.gen.name}, {self.engine.name}, {self.engine.volume}, {self.engine.fuel_type}, {self.color} создано:{self.created} изменено: {self.updated}"
 
 class CarImage(models.Model):
     car = models.ForeignKey(to='Car', on_delete=models.CASCADE, related_name='images', verbose_name='Автомобиль')
