@@ -23,6 +23,7 @@ from . import settings
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('carshop.urls')),
+    path('apis/', include('carshop.apiurls'))
 ]
 
 if settings.DEBUG:

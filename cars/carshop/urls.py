@@ -15,5 +15,6 @@ urlpatterns = [
     path('brands/<slug:brand_slug>/<slug:model_slug>/add-gen/', views.AddGen.as_view(), name='add_gen'),
     path('brands/<slug:brand_slug>/<slug:model_slug>/edit-gen/<slug:gen_slug>', views.UpdateGen.as_view(), name='edit_gen'),
     path('brands/<slug:brand_slug>/<slug:model_slug>/<slug:gen_slug>/', views.CarList.as_view(), name='car_list'),
-    path('brands/<slug:brand_slug>/<slug:model_slug>/<slug:gen_slug>/add-car/', views.CreateCar.as_view(), name='add_car')
+    path('brands/<slug:brand_slug>/<slug:model_slug>/<slug:gen_slug>/add-car/', views.CreateCar.as_view(), name='add_car'),
+    path('brands/<slug:brand_slug>/<slug:model_slug>/<slug:gen_slug>/edit-car/<slug:car_slug>/', views.UpdateCar.as_view(), name="edit_car"),
 ]

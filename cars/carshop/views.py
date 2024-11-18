@@ -1,9 +1,16 @@
 from django.db.models.query import QuerySet
 from django.shortcuts import render, get_object_or_404
-from django.views.generic import TemplateView, ListView
+from django.views.generic import TemplateView, ListView, DetailView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
-from .models import Brand, CarModel, Gen, Engine, Car
 from django.urls import reverse_lazy
+
+from .forms import CarForm
+
+from .models import (
+    Brand, CarModel, 
+    Gen, Engine, 
+    Car, CarImage
+)
 # Create your views here.
 class IndexView(TemplateView):
     '''
@@ -58,6 +65,7 @@ class ModelList(ListView):
 
     def get_queryset(self):
         return CarModel.objects.filter(brand__slug=self.kwargs['brand_slug'])
+
 
 class AddModel(CreateView):
     '''
@@ -117,6 +125,7 @@ class GenList(ListView):
     def get_queryset(self):
         return Gen.objects.filter(model__slug=self.kwargs['model_slug'])
     
+    
 class AddGen(CreateView):
     '''
     
@@ -160,7 +169,7 @@ class UpdateGen(UpdateView):
             'model_slug' : self.kwargs['model_slug']
             }
             )
-    
+
 class CreateEngine(CreateView):
     model = Engine
     template_name = "carshop/add_engine.html"
@@ -188,20 +197,27 @@ class CarList(ListView):
     
     def get_queryset(self):
         return Car.objects.filter(gen__slug=self.kwargs['gen_slug'])
-    
+
 class CreateCar(CreateView):
     model = Car
+    form_class = CarForm
     template_name = 'carshop/add_gen.html'
-    fields = ['engine', 'vin', 'color', 'description']
-
 
     def form_valid(self, form):
         gen = get_object_or_404(Gen, slug=self.kwargs['gen_slug'])
         form.instance.gen = gen
-        return super().form_valid(form)
+
+        response = super().form_valid(form)
+
+        images = self.request.FILES.getlist('images')
+        for image in images:
+            CarImage.objects.create(car=self.object, image = image)
+        
+
+        return response
     
     def get_success_url(self) -> str:
-        return reverse_lazy('gen_list', kwargs={
+        return reverse_lazy('car_list', kwargs={
             'gen_slug' : self.kwargs['gen_slug'],
             'brand_slug' : self.kwargs['brand_slug'], 
             'model_slug' : self.kwargs['model_slug']
@@ -210,21 +226,28 @@ class CreateCar(CreateView):
     
 class UpdateCar(UpdateView):
     model = Car
+    form_class = CarForm
     template_name = 'carshop/add_gen.html'
-    fields = ['engine', 'vin', 'color', 'description']
 
     def get_object(self, queryset=None):
         return get_object_or_404(Car, slug=self.kwargs['car_slug'])
 
     def form_valid(self, form):
         gen = get_object_or_404(Gen, slug=self.kwargs['gen_slug'])
-        form.instance.model = gen
-        return super().form_valid(form)
-    
+        form.instance.gen = gen
+
+        response = super().form_valid(form)
+
+        images = self.request.FILES.getlist('images')
+        for image in images:
+            CarImage.objects.create(car=self.object, image = image)
+
+        return response
+
     def get_success_url(self) -> str:
-        return reverse_lazy('gen_list', kwargs={
-            'gen_slug' : self.kwargs['gen_slug'],
-            'brand_slug' : self.kwargs['brand_slug'], 
-            'model_slug' : self.kwargs['model_slug']
-            }
-            )
+        return reverse_lazy('car_list', kwargs={
+        'gen_slug' : self.kwargs['gen_slug'],
+        'brand_slug' : self.kwargs['brand_slug'], 
+        'model_slug' : self.kwargs['model_slug']
+        }
+        )

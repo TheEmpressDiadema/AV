@@ -4,6 +4,9 @@
         <legend>Добавить автомобиль</legend>
         {% csrf_token %}
         {{ form.as_p }}
+        <p>Добавить фотографии</p>
+        <label for="id_images">Фотографии:</label>
+        <input type="file" name="images" id="id_images" multiple>
         <button type="submit">Добавить!</button>
     </form>
 {% endblock %}
