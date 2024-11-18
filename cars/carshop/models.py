@@ -106,6 +106,9 @@ class Gen(models.Model):
     def save(self, **kwargs):
         self.slug = slugify(f"{self.name.split()}-{self.release_start}-{self.release_end}")
         return super().save(**kwargs)
+    
+    def get_absolute_url(self):
+        return reverse("car_list", kwargs={"gen_slug" : self.slug, "model_slug" : self.model.slug, "brand_slug" : self.model.brand.slug})
 
     def __str__(self):
         return f"Поколение id:{self.pk}, имя:{self.name}, марка:{self.model.name}, изображение: {self.image}, создано:{self.created}, изменено:{self.updated}"
@@ -160,11 +163,13 @@ class Car(models.Model):
         BLUE = 'BL', "Синий"
         OTHER = 'O', "Другой"
 
+    name = models.CharField(max_length=100, blank=False, null=False, verbose_name="Наименование")
     gen = models.ForeignKey(to='Gen', on_delete=models.CASCADE, blank=False, null=False, related_name='cars', verbose_name='Поколение')
     engine = models.ForeignKey(to='Engine', on_delete=models.CASCADE, blank=False, null=False, related_name='cars', verbose_name='Двигатель')
     vin = models.CharField(max_length=50, blank=True, null=True, unique=True, verbose_name='VIN')
     color = models.CharField(max_length=2, choices=Colors.choices, blank=False, null=False, default=Colors.OTHER, verbose_name='Цвет')
     description = models.TextField(blank=True, null=True, verbose_name='Описание')
+    slug = models.SlugField(max_length=140, db_index=True, blank=False, null=False, unique=True, verbose_name='URL')
     created = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')
     updated = models.DateTimeField(auto_now=True, verbose_name='Дата обновления')
 
@@ -177,6 +182,14 @@ class Car(models.Model):
         indexes = [
             models.Index(fields=['vin'])
         ]
+    
+    def get_edit_url(self):
+        return reverse("edit_car", kwargs={"car_slug" : self.slug, "gen_slug" : self.gen.slug, "model_slug" : self.gen.model.slug, "brand_slug" : self.brand.slug})
+
+    def save(self, **kwargs):
+        self.name = self.gen.model.brand.name + " " + self.gen.model.name + " " + self.gen.name
+        self.slug = slugify("-".join(self.name.split()))
+        return super().save(**kwargs)
 
     def __str__(self):
         return f"Машина: {self.vin} {self.gen.model.brand.name} {self.gen.model.name} {self.gen.name}, {self.engine.name}, {self.engine.volume}, {self.engine.fuel_type}, {self.color} создано:{self.created} изменено: {self.updated}"

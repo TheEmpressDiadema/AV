@@ -7,7 +7,7 @@
                 <div class='gen_block'>
                     <li>
                         <image src="{{ gen.image.url }}">
-                        <a href="#">{{ gen.name }}</a>|<a href="{{ gen.get_edit_url }}">Изменить</a>
+                        <a href="{{ gen.get_absolute_url }}">{{ gen.name }}</a>|<a href="{{ gen.get_edit_url }}">Изменить</a>
                     </li>
                 </div>
             {% endfor %}
