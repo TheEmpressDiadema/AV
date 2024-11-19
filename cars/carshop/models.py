@@ -5,10 +5,15 @@ from django.utils.text import slugify
 from django.core.validators import MinValueValidator, MaxValueValidator
 
 def gen_directory_path(instance, filename: str) -> str:
-    return "gen_{0}/{1}".format(instance.name, filename)
+    return "{0}/{1}/{2}/{3}".format(instance.model.brand.name, instance.model.name, instance.name, filename)
 
 def car_directory_path(instance, filename: str) -> str:
-    return "car_{0}/{1}".format(instance.car.vin, filename)
+    return "{0}/{1}/{2}/{3}/{4}".format(
+        instance.car.gen.model.brand.name,
+        instance.car.gen.model.name, 
+        instance.car.gen.name,
+        instance.car.slug,
+        filename)
 
 # Create your models here.
 class Brand(models.Model):
@@ -134,11 +139,6 @@ class Engine(models.Model):
         ],
         verbose_name='Мощность двигателя, л.с.'
     )
-    milage = models.IntegerField(
-        blank=False,
-        null=False,
-        verbose_name='Пробег'
-    )
     created = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')
     updated = models.DateTimeField(auto_now=True, verbose_name='Дата обновления')
 
@@ -151,7 +151,7 @@ class Engine(models.Model):
         ]
 
     def __str__(self):
-        return f"Двигатель id:{self.pk}, имя:{self.name}, тип:{self.fuel_type}, объем:{self.volume}, мощность:{self.power}, пробег:{self.milage}, создано:{self.created}, изменено:{self.updated}"
+        return f"Двигатель id:{self.pk}, имя:{self.name}, тип:{self.fuel_type}, объем:{self.volume}, мощность:{self.power}, создано:{self.created}, изменено:{self.updated}"
     
 class Car(models.Model):
 
@@ -166,6 +166,7 @@ class Car(models.Model):
     name = models.CharField(max_length=100, blank=False, null=False, verbose_name="Наименование")
     gen = models.ForeignKey(to='Gen', on_delete=models.CASCADE, blank=False, null=False, related_name='cars', verbose_name='Поколение')
     engine = models.ForeignKey(to='Engine', on_delete=models.CASCADE, blank=False, null=False, related_name='cars', verbose_name='Двигатель')
+    milage = models.IntegerField(blank=False, null=False, verbose_name='Пробег')
     vin = models.CharField(max_length=50, blank=True, null=True, unique=True, verbose_name='VIN')
     price = models.FloatField(blank=False, null=False, verbose_name="Цена")
     color = models.CharField(max_length=2, choices=Colors.choices, blank=False, null=False, default=Colors.OTHER, verbose_name='Цвет')
@@ -188,13 +189,16 @@ class Car(models.Model):
         return reverse("edit_car", kwargs={"car_slug" : self.slug, "gen_slug" : self.gen.slug, "model_slug" : self.gen.model.slug, "brand_slug" : self.gen.model.brand.slug})
 
     def save(self, **kwargs):
-        last_car = Car.objects.last()
-        if last_car is None:
-            last_car = 0
-        else:
-            last_car = last_car.pk
-        self.name = self.gen.model.brand.name + " " + self.gen.model.name + " " + self.gen.name
-        self.slug = slugify("-".join(self.name.split())) + f"-{last_car+1}"
+        if not self.name:
+            self.name = self.gen.model.brand.name + " " + self.gen.model.name + " " + self.gen.name
+        if not self.slug:
+            base_slug = slugify(self.name)
+            unique_slug = base_slug
+            num = 1
+            while Car.objects.filter(slug=unique_slug).exists():
+                unique_slug = f"{base_slug}-{num}"
+                num += 1
+            self.slug = unique_slug
         return super().save(**kwargs)
 
     def __str__(self):
