@@ -173,7 +173,7 @@ class UpdateGen(UpdateView):
 class CreateEngine(CreateView):
     model = Engine
     template_name = "carshop/add_engine.html"
-    fields = ['name', 'fuel_type', 'volume', 'power', 'milage']
+    fields = ['name', 'fuel_type', 'volume', 'power']
     success_url = reverse_lazy('home')
 
 class CarList(ListView):
@@ -211,7 +211,7 @@ class CreateCar(CreateView):
 
         images = self.request.FILES.getlist('images')
         for image in images:
-            CarImage.objects.create(car=self.object, image = image)
+            CarImage.objects.create(car=self.object, image=image)
         
 
         return response
