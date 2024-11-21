@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block content %}
+    {% for image in car.images.all %}
+        <img src="{{ image.image.url }}" alt="Фото {{ car.name }}" style="max-width: 200px; margin: 10px;">
+        {% empty %}
+            <p>Нет фотографий для этого автомобиля.</p>
+    {% endfor %}
+    <p>Автомобиль: {{ car.name }}</p>
+    <p>Двигатель: {{ car.engine.name }}, {{ car.engine.volume }}, {{car.engine.get_fuel_type_display }}, {{ car.engine.power }}</p>
+    <p>Пробег: {{ car.milage }} км</p>
+    <p>Стоимость: {{ car.price }}$</p>
+    <p>VIN: {{ car.vin }}</p>
+    <p>Описание: {{ car.description }}</p>
+{% endblock %}

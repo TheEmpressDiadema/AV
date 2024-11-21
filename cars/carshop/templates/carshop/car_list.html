@@ -4,7 +4,7 @@
     <div class="list">
         <ul>
             {% for car in cars %}
-                <li><img src="{{ car.images.first.url }}" > {{ car.name }} {{ car.engine }} {{car.}}|<a href="{{ car.get_edit_url }}">Изменить</a></li>
+                <li><a href="{{ car.get_absolute_url }}">{{ car.name }} {{ car.engine }} {{car.}}|<a href="{{ car.get_edit_url }}">Изменить</a></li>
             {% endfor %}
         </ul>
     </div>
