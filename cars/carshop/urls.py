@@ -17,4 +17,5 @@ urlpatterns = [
     path('brands/<slug:brand_slug>/<slug:model_slug>/<slug:gen_slug>/', views.CarList.as_view(), name='car_list'),
     path('brands/<slug:brand_slug>/<slug:model_slug>/<slug:gen_slug>/add-car/', views.CreateCar.as_view(), name='add_car'),
     path('brands/<slug:brand_slug>/<slug:model_slug>/<slug:gen_slug>/edit-car/<slug:car_slug>/', views.UpdateCar.as_view(), name="edit_car"),
+    path('brands/<slug:brand_slug>/<slug:model_slug>/<slug:gen_slug>/<slug:car_slug>/', views.CarView.as_view(), name="car")
 ]

@@ -188,6 +188,9 @@ class Car(models.Model):
     def get_edit_url(self):
         return reverse("edit_car", kwargs={"car_slug" : self.slug, "gen_slug" : self.gen.slug, "model_slug" : self.gen.model.slug, "brand_slug" : self.gen.model.brand.slug})
 
+    def get_absolute_url(self):
+        return reverse("car", kwargs={"car_slug" : self.slug, "gen_slug" : self.gen.slug, "model_slug" : self.gen.model.slug, "brand_slug" : self.gen.model.brand.slug})
+
     def save(self, **kwargs):
         if not self.name:
             self.name = self.gen.model.brand.name + " " + self.gen.model.name + " " + self.gen.name
@@ -202,7 +205,7 @@ class Car(models.Model):
         return super().save(**kwargs)
 
     def __str__(self):
-        return f"Машина: {self.vin} {self.slug} {self.gen.model.brand.name} {self.gen.model.name} {self.gen.name}, {self.engine.name}, {self.engine.volume}, {self.engine.fuel_type}, {self.color} создано:{self.created} изменено: {self.updated}"
+        return f"Машина: {self.pk} {self.vin} {self.slug} {self.gen.model.brand.name} {self.gen.model.name} {self.gen.name}, {self.engine.name}, {self.engine.volume}, {self.engine.fuel_type}, {self.color} создано:{self.created} изменено: {self.updated}"
 
 class CarImage(models.Model):
     car = models.ForeignKey(to='Car', on_delete=models.CASCADE, related_name='images', verbose_name='Автомобиль')
