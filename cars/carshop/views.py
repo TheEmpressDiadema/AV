@@ -198,6 +198,15 @@ class CarList(ListView):
     def get_queryset(self):
         return Car.objects.filter(gen__slug=self.kwargs['gen_slug'])
 
+class CarView(DetailView):
+    model = Car
+    template_name = "carshop/car.html"
+    slug_url_kwarg = "car_slug"
+    context_object_name = 'car'
+
+    def get_obejct(self, queryset=None):
+        return get_object_or_404(Car, slug=self.kwargs['car_slug'])
+
 class CreateCar(CreateView):
     model = Car
     form_class = CarForm
@@ -209,11 +218,10 @@ class CreateCar(CreateView):
 
         response = super().form_valid(form)
 
-        images = self.request.FILES.getlist('images')
+        images = form.cleaned_data['images']
         for image in images:
             CarImage.objects.create(car=self.object, image=image)
         
-
         return response
     
     def get_success_url(self) -> str:
@@ -238,7 +246,7 @@ class UpdateCar(UpdateView):
 
         response = super().form_valid(form)
 
-        images = self.request.FILES.getlist('images')
+        images = form.cleaned_data['images']
         for image in images:
             CarImage.objects.create(car=self.object, image = image)
 
