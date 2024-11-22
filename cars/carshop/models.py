@@ -1,4 +1,3 @@
-from typing import Iterable
 from django.db import models
 from django.urls import reverse
 from django.utils.text import slugify
@@ -187,6 +186,9 @@ class Car(models.Model):
     
     def get_edit_url(self):
         return reverse("edit_car", kwargs={"car_slug" : self.slug, "gen_slug" : self.gen.slug, "model_slug" : self.gen.model.slug, "brand_slug" : self.gen.model.brand.slug})
+
+    def get_delete_url(self):
+        return reverse("delete_car", kwargs={"car_slug" : self.slug, "gen_slug" : self.gen.slug, "model_slug" : self.gen.model.slug, "brand_slug" : self.gen.model.brand.slug})
 
     def get_absolute_url(self):
         return reverse("car", kwargs={"car_slug" : self.slug, "gen_slug" : self.gen.slug, "model_slug" : self.gen.model.slug, "brand_slug" : self.gen.model.brand.slug})
